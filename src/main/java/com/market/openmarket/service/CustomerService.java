@@ -3,6 +3,7 @@ package com.market.openmarket.service;
 import com.market.openmarket.dto.CustomerSignUpRequestDto;
 import com.market.openmarket.entity.Customer;
 import com.market.openmarket.repository.CustomerRepository;
+import com.market.openmarket.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public void signUp(CustomerSignUpRequestDto dto) {
         if (customerRepository.existsByEmail(dto.getEmail())) {
@@ -25,7 +27,7 @@ public class CustomerService {
 
         Customer customer = Customer.builder()
                 .email(dto.getEmail())
-                .pwd(dto.getPwd())
+                .pwd(passwordEncoder.hashPassword(dto.getPwd()))
                 .name(dto.getName())
                 .phone(dto.getPhone())
                 .nickname(dto.getNickname())
