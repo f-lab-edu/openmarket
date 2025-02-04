@@ -1,13 +1,15 @@
 package com.market.openmarket.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CustomerSignUpResponseDto {
 
-    private Long id;
+    private Integer id;
     private String email;
     private String name;
     private String phone;
