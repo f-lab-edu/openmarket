@@ -3,6 +3,9 @@ package com.market.openmarket.service;
 import com.market.openmarket.dto.CustomerSignUpRequestDto;
 import com.market.openmarket.dto.CustomerSignUpResponseDto;
 import com.market.openmarket.entity.Customer;
+import com.market.openmarket.exception.EmailExistException;
+import com.market.openmarket.exception.NicknameExistException;
+import com.market.openmarket.exception.PhoneExistException;
 import com.market.openmarket.repository.CustomerRepository;
 import com.market.openmarket.util.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +20,13 @@ public class CustomerService {
 
     public CustomerSignUpResponseDto signUp(CustomerSignUpRequestDto dto) {
         if (customerRepository.existsByEmail(dto.getEmail())) {
-            throw new IllegalArgumentException("이미 존재하는 이메일입니다.");
+            throw new EmailExistException();
         }
         if (customerRepository.existsByNickname(dto.getNickname())) {
-            throw new IllegalArgumentException("이미 존재하는 닉네임입니다.");
+            throw new NicknameExistException();
         }
         if (customerRepository.existsByPhone(dto.getPhone())) {
-            throw new IllegalArgumentException("이미 등록된 전화번호입니다.");
+            throw new PhoneExistException();
         }
 
         Customer customer = customerRepository.save(Customer.builder()
