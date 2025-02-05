@@ -8,6 +8,7 @@ import com.market.openmarket.exception.NicknameExistException;
 import com.market.openmarket.exception.PhoneExistException;
 import com.market.openmarket.repository.CustomerRepository;
 import com.market.openmarket.util.PasswordEncoder;
+import com.market.openmarket.util.Validator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,17 +18,10 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
     private final PasswordEncoder passwordEncoder;
+    private final Validator validator;
 
     public CustomerSignUpResponseDto signUp(CustomerSignUpRequestDto dto) {
-        if (customerRepository.existsByEmail(dto.getEmail())) {
-            throw new EmailExistException();
-        }
-        if (customerRepository.existsByNickname(dto.getNickname())) {
-            throw new NicknameExistException();
-        }
-        if (customerRepository.existsByPhone(dto.getPhone())) {
-            throw new PhoneExistException();
-        }
+        validator.customerSignUpValidate(dto);
 
         Customer customer = customerRepository.save(Customer.builder()
                 .email(dto.getEmail())

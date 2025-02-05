@@ -8,6 +8,7 @@ import com.market.openmarket.exception.NicknameExistException;
 import com.market.openmarket.exception.PhoneExistException;
 import com.market.openmarket.repository.CustomerRepository;
 import com.market.openmarket.util.PasswordEncoder;
+import com.market.openmarket.util.Validator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +30,9 @@ class CustomerServiceUnitTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private Validator validator;
+
     @InjectMocks
     private CustomerService customerService;
 
@@ -47,9 +51,7 @@ class CustomerServiceUnitTest {
 
     @Test
     void signUp() {
-        when(customerRepository.existsByEmail(requestDto.getEmail())).thenReturn(false);
-        when(customerRepository.existsByNickname(requestDto.getNickname())).thenReturn(false);
-        when(customerRepository.existsByPhone(requestDto.getPhone())).thenReturn(false);
+        doNothing().when(validator).customerSignUpValidate(any(CustomerSignUpRequestDto.class));
 
         Customer customer = Customer.builder()
                 .id(1)
@@ -75,8 +77,7 @@ class CustomerServiceUnitTest {
 
     @Test
     void signUp_duplicated_email() {
-        when(customerRepository.existsByEmail(requestDto.getEmail())).thenReturn(true);
-
+        doThrow(new EmailExistException()).when(validator).customerSignUpValidate(requestDto);
         assertThrows(EmailExistException.class, () -> {
             customerService.signUp(requestDto);
         });
@@ -84,7 +85,7 @@ class CustomerServiceUnitTest {
 
     @Test
     void signUp_duplicated_nickname() {
-        when(customerRepository.existsByNickname(requestDto.getNickname())).thenReturn(true);
+        doThrow(new NicknameExistException()).when(validator).customerSignUpValidate(requestDto);
 
         assertThrows(NicknameExistException.class, () -> {
             customerService.signUp(requestDto);
@@ -93,7 +94,7 @@ class CustomerServiceUnitTest {
 
     @Test
     void signUp_duplicated_phone() {
-        when(customerRepository.existsByPhone(requestDto.getPhone())).thenReturn(true);
+        doThrow(new PhoneExistException()).when(validator).customerSignUpValidate(requestDto);
 
         assertThrows(PhoneExistException.class, () -> {
             customerService.signUp(requestDto);
