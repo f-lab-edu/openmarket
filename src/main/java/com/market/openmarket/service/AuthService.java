@@ -66,7 +66,7 @@ public class AuthService {
                 .userId(user.getId())
                 .token(refreshToken.getToken())
                 // TODO: 리팩터링 시 JPA AttributeConverter 적용하기
-                .createdAt(LocalDateTime.ofInstant(refreshToken.getIssuedAt().toInstant(), ZoneId.of("UTC")))
+                .issuedAt(LocalDateTime.ofInstant(refreshToken.getIssuedAt().toInstant(), ZoneId.of("UTC")))
                 .expiresAt(LocalDateTime.ofInstant(refreshToken.getExpiration().toInstant(), ZoneId.of("UTC")))
                 .build();
 
