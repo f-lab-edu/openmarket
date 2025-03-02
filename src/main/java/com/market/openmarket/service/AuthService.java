@@ -34,8 +34,8 @@ public class AuthService {
                 .type(requestDto.getType())
                 .build();
 
-        userRepository.save(user);
+        User savedUser = userRepository.save(user);
 
-        return UserSignUpResponseDto.fromEntity(user);
+        return UserSignUpResponseDto.fromEntity(savedUser);
     }
 }
