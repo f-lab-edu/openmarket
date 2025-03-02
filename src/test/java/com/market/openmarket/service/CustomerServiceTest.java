@@ -1,12 +1,8 @@
 package com.market.openmarket.service;
 
-import com.market.openmarket.dto.CustomerSignUpRequestDto;
-import com.market.openmarket.dto.CustomerSignUpResponseDto;
-import com.market.openmarket.entity.Customer;
 import com.market.openmarket.exception.EmailExistException;
 import com.market.openmarket.exception.NicknameExistException;
 import com.market.openmarket.exception.PhoneExistException;
-import com.market.openmarket.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,7 +1,5 @@
 package com.market.openmarket.controller;
 
-import com.market.openmarket.dto.CustomerSignUpRequestDto;
-import com.market.openmarket.dto.CustomerSignUpResponseDto;
 import com.market.openmarket.service.CustomerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
