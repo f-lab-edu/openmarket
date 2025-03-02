@@ -39,6 +39,7 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
 
     implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
+    implementation group: 'io.jsonwebtoken', name: 'jjwt-api', version: '0.12.6'
 }
 
 tasks.named('test') {
