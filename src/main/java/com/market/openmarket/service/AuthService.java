@@ -50,6 +50,7 @@ public class AuthService {
         return UserSignUpResponseDto.fromEntity(savedUser);
     }
 
+    @Transactional
     public UserLogInResponseDto logIn(UserLogInRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
@@ -62,14 +63,21 @@ public class AuthService {
         JwtToken accessToken = jwtUtil.generateAccessToken(user);
         JwtToken refreshToken = jwtUtil.generateRefreshToken(user);
 
-        RefreshToken refreshTokenEntity = RefreshToken.builder()
-                .userId(user.getId())
-                .token(refreshToken.getToken())
-                // TODO: 리팩터링 시 JPA AttributeConverter 적용하기
-                .issuedAt(LocalDateTime.ofInstant(refreshToken.getIssuedAt().toInstant(), ZoneId.of("UTC")))
-                .expiresAt(LocalDateTime.ofInstant(refreshToken.getExpiration().toInstant(), ZoneId.of("UTC")))
-                .build();
+        // TODO: 리팩터링 시 JPA AttributeConverter 적용하기
+        LocalDateTime issuedAt = LocalDateTime.ofInstant(refreshToken.getIssuedAt().toInstant(), ZoneId.of("UTC"));
+        LocalDateTime expiresAt = LocalDateTime.ofInstant(refreshToken.getExpiration().toInstant(), ZoneId.of("UTC"));
 
+        RefreshToken refreshTokenEntity = refreshTokenRepository.findByUserId(user.getId())
+                .orElseGet(() -> RefreshToken.builder()
+                        .userId(user.getId()).build()
+                );
+
+        // 토큰을 가진 유저가 새로 로그인한다면 토큰 값과 발행일자, 만료일자 새로 세팅
+        refreshTokenEntity.setToken(refreshToken.getToken());
+        refreshTokenEntity.setIssuedAt(issuedAt);
+        refreshTokenEntity.setExpiresAt(expiresAt);
+
+        // 신규 엔티티의 경우 JPA DirtyChecking 적용 안됨. 명시적 save() 호출
         refreshTokenRepository.save(refreshTokenEntity);
 
         return UserLogInResponseDto.builder()
