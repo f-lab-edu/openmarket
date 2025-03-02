@@ -40,6 +40,7 @@ public class AuthController {
         Cookie cookie = new Cookie("refreshToken", tokens.getRefreshToken());
         cookie.setHttpOnly(true);
         cookie.setMaxAge(60 * 24 * 60 * TokenProperties.REFRESH_TOKEN_EXPIRATION_DAYS);
+        cookie.setSecure(false);
         res.addCookie(cookie);
 
         return ResponseEntity.ok(tokens.getAccessToken());
