@@ -2,7 +2,7 @@ package com.market.openmarket.controller;
 
 import com.market.openmarket.dto.UserSignUpRequestDto;
 import com.market.openmarket.dto.UserSignUpResponseDto;
-import com.market.openmarket.service.UserService;
+import com.market.openmarket.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -11,17 +11,17 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/v1/users")
+@RequestMapping("/auth")
 @RequiredArgsConstructor
-public class UserController {
+public class AuthController {
 
-    private final UserService userService;
+    private final AuthService userService;
 
-    @PostMapping("/signup")
+    @PostMapping("/sign-up")
     public ResponseEntity<UserSignUpResponseDto> signUp(
             @Validated @RequestBody UserSignUpRequestDto requestDto) {
         UserSignUpResponseDto responseDto = userService.signUp(requestDto);
-        URI location = URI.create("/api/v1/users/" + responseDto.getId());
+        URI location = URI.create("/auth/" + responseDto.getId());
         return ResponseEntity.created(location).body(responseDto);
     }
 }
