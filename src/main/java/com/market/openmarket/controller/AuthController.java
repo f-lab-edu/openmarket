@@ -1,12 +1,20 @@
 package com.market.openmarket.controller;
 
+import com.market.openmarket.config.TokenProperties;
+import com.market.openmarket.dto.UserLogInRequestDto;
+import com.market.openmarket.dto.UserLogInResponseDto;
 import com.market.openmarket.dto.UserSignUpRequestDto;
 import com.market.openmarket.dto.UserSignUpResponseDto;
 import com.market.openmarket.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 
@@ -15,13 +23,25 @@ import java.net.URI;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService userService;
+    private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserSignUpResponseDto> signUp(
-            @Validated @RequestBody UserSignUpRequestDto requestDto) {
-        UserSignUpResponseDto responseDto = userService.signUp(requestDto);
+    public ResponseEntity<UserSignUpResponseDto> signUp(@Validated @RequestBody UserSignUpRequestDto requestDto) {
+        UserSignUpResponseDto responseDto = authService.signUp(requestDto);
         URI location = URI.create("/auth/" + responseDto.getId());
+
         return ResponseEntity.created(location).body(responseDto);
+    }
+
+    @PostMapping("/log-in")
+    public ResponseEntity<String> logIn(@Validated @RequestBody UserLogInRequestDto requestDto, HttpServletResponse res) {
+        UserLogInResponseDto tokens = authService.logIn(requestDto);
+
+        Cookie cookie = new Cookie("refreshToken", tokens.getRefreshToken());
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(60 * 24 * 60 * TokenProperties.REFRESH_TOKEN_EXPIRATION_DAYS);
+        res.addCookie(cookie);
+
+        return ResponseEntity.ok(tokens.getAccessToken());
     }
 }
