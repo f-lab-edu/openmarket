@@ -4,7 +4,7 @@ import com.market.openmarket.config.TokenProperties;
 import com.market.openmarket.dto.UserLogInRequestDto;
 import com.market.openmarket.dto.UserLogInResponseDto;
 import com.market.openmarket.dto.UserSignUpRequestDto;
-import com.market.openmarket.dto.UserSignUpResponseDto;
+import com.market.openmarket.dto.UserResponseDto;
 import com.market.openmarket.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,8 +26,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/sign-up")
-    public ResponseEntity<UserSignUpResponseDto> signUp(@Validated @RequestBody UserSignUpRequestDto requestDto) {
-        UserSignUpResponseDto responseDto = authService.signUp(requestDto);
+    public ResponseEntity<UserResponseDto> signUp(@Validated @RequestBody UserSignUpRequestDto requestDto) {
+        UserResponseDto responseDto = authService.signUp(requestDto);
         URI location = URI.create("/auth/" + responseDto.getId());
 
         return ResponseEntity.created(location).body(responseDto);

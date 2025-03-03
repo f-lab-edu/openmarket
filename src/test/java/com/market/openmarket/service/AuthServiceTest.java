@@ -4,7 +4,7 @@ import com.market.openmarket.config.TokenProperties;
 import com.market.openmarket.dto.UserLogInRequestDto;
 import com.market.openmarket.dto.UserLogInResponseDto;
 import com.market.openmarket.dto.UserSignUpRequestDto;
-import com.market.openmarket.dto.UserSignUpResponseDto;
+import com.market.openmarket.dto.UserResponseDto;
 import com.market.openmarket.entity.User;
 import com.market.openmarket.entity.UserType;
 import com.market.openmarket.exception.DuplicateUserException;
@@ -104,7 +104,7 @@ class AuthServiceTest {
                 .build();
         when(userRepository.save(any(User.class))).thenReturn(savedUser);
 
-        UserSignUpResponseDto responseDto = authService.signUp(signUpRequestDto);
+        UserResponseDto responseDto = authService.signUp(signUpRequestDto);
 
         assertEquals(1L, responseDto.getId());
         assertEquals(signUpRequestDto.getEmail(), responseDto.getEmail());

@@ -1,6 +1,7 @@
 package com.market.openmarket.util;
 
 import com.market.openmarket.dto.UserSignUpRequestDto;
+import com.market.openmarket.dto.UserUpdateRequestDto;
 import com.market.openmarket.exception.DuplicateUserException;
 import com.market.openmarket.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,23 @@ public class UserValidator {
         }
         if (userRepository.existsByNickname(requestDto.getNickname())) {
             throw new DuplicateUserException("이미 사용 중인 닉네임입니다.");
+        }
+    }
+
+    public void validateDuplicateForUpdate(Long userId, UserUpdateRequestDto requestDto) {
+        if (requestDto.getNickname() != null) {
+            userRepository.findByNickname(requestDto.getNickname())
+                    .filter(user -> !user.getId().equals(userId))
+                    .ifPresent(user -> {
+                        throw new DuplicateUserException("이미 사용 중인 닉네임입니다.");
+                    });
+        }
+        if (requestDto.getPhone() != null) {
+            userRepository.findByPhone(requestDto.getPhone())
+                    .filter(user -> !user.getId().equals(userId))
+                    .ifPresent(user -> {
+                        throw new DuplicateUserException("이미 사용 중인 전화번호입니다.");
+                    });
         }
     }
 }
