@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserSignUpResponseDto {
+public class UserResponseDto {
 
     private Long id;
     private String email;
@@ -19,18 +19,16 @@ public class UserSignUpResponseDto {
     private String phone;
     private String nickname;
     private String address;
-    private LocalDateTime createdAt;
     private UserType type;
 
-    public static UserSignUpResponseDto fromEntity(User user) {
-        return UserSignUpResponseDto.builder()
+    public static UserResponseDto fromEntity(User user) {
+        return UserResponseDto.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .name(user.getName())
                 .phone(user.getPhone())
                 .nickname(user.getNickname())
                 .address(user.getAddress())
-                .createdAt(user.getCreatedAt())
                 .type(user.getType())
                 .build();
     }
