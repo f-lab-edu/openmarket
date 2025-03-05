@@ -1,5 +1,6 @@
 package com.market.openmarket.controller;
 
+import com.market.openmarket.dto.PasswordFindRequestDto;
 import com.market.openmarket.dto.UserResponseDto;
 import com.market.openmarket.dto.UserUpdateRequestDto;
 import com.market.openmarket.service.UserService;
@@ -35,5 +36,11 @@ public class UserController {
         userService.deleteUser(id);
 
         return ResponseEntity.ok("success");
+    }
+
+    @PostMapping("/find-password")
+    public ResponseEntity<String> findPassword(@RequestBody PasswordFindRequestDto requestDto) {
+        userService.sendPasswordResetEmail(requestDto.getEmail());
+        return ResponseEntity.ok("비밀번호 재설정 이메일을 발송했습니다.");
     }
 }
