@@ -4,8 +4,6 @@ import com.market.openmarket.entity.User;
 import com.market.openmarket.entity.UserType;
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor

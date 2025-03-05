@@ -2,7 +2,7 @@ name: F-Lab SonarCloud Code Analyze
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
   workflow_dispatch:
 
 env:
@@ -53,11 +53,10 @@ jobs:
             echo "}" >> build.gradle
           fi
           chmod 777 ./gradlew
-          
+
 
       - name: Analyze
         run: ./gradlew sonar -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }} -Dsonar.organization=f-lab-edu-1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.token=${{ secrets.SECRET_SONARQUBE }} -Dsonar.gradle.skipCompile=true
         env:
           SONAR_TOKEN: ${{ secrets.SECRET_SONARQUBE }}
 
-          

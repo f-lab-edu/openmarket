@@ -2,8 +2,8 @@ package com.market.openmarket.service;
 
 import com.market.openmarket.dto.UserLogInRequestDto;
 import com.market.openmarket.dto.UserLogInResponseDto;
-import com.market.openmarket.dto.UserSignUpRequestDto;
 import com.market.openmarket.dto.UserResponseDto;
+import com.market.openmarket.dto.UserSignUpRequestDto;
 import com.market.openmarket.entity.RefreshToken;
 import com.market.openmarket.entity.User;
 import com.market.openmarket.repository.RefreshTokenRepository;
