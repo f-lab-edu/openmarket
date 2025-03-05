@@ -4,6 +4,7 @@ import com.market.openmarket.dto.UserResponseDto;
 import com.market.openmarket.dto.UserUpdateRequestDto;
 import com.market.openmarket.entity.User;
 import com.market.openmarket.repository.UserRepository;
+import com.market.openmarket.util.JwtUtil;
 import com.market.openmarket.util.UserValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+
     private final UserValidator userValidator;
+
+    private final JwtUtil jwtUtil;
+
+    private final EmailService emailService;
 
     @Transactional
     public User findByIdOrFail(Long id) {
@@ -56,5 +62,13 @@ public class UserService {
         user.setNickname(null);
         user.setPhone(null);
         // TODO: Postgres 의 경우, partial unique index 를 사용하여 해결 가능함.
+    }
+
+    @Transactional
+    public void sendPasswordResetEmail(String email) {
+        userRepository.existsByEmail(email);
+
+        // TODO: 운영환경 주소 변경
+        emailService.sendPasswordResetEmail(email);
     }
 }
