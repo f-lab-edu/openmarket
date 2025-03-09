@@ -11,7 +11,7 @@ public interface UserService {
 
     User createUser(UserSignUpRequestDto requestDto);
 
-    User findByEmail(String email);
+    User findByEmailOrFail(String email);
 
     UserResponseDto getUser(Long id);
 

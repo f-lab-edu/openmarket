@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional(readOnly = true)
-    public User findByEmail(String email) {
+    public User findByEmailOrFail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
     }
@@ -86,11 +86,8 @@ public class UserServiceImpl implements UserService {
         // TODO: Postgres 의 경우, partial unique index 를 사용하여 해결 가능함.
     }
 
-    @Transactional
     public void sendPasswordResetEmail(String email) {
-        userRepository.existsByEmail(email);
-
-        // TODO: 운영환경 주소 변경
+        userValidator.checkEmailExists(email);
         emailService.sendPasswordResetEmail(email);
     }
 }

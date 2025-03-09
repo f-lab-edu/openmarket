@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     public UserLogInResponseDto logIn(UserLogInRequestDto requestDto) {
-        User user = userService.findByEmail(requestDto.getEmail());
+        User user = userService.findByEmailOrFail(requestDto.getEmail());
 
         boolean isValid = passwordEncoder.checkPwd(requestDto.getPwd(), user.getPwd());
         if (!isValid) {
