@@ -1,19 +1,17 @@
-package com.market.openmarket.service;
+package com.market.openmarket.auth;
 
 import com.market.openmarket.config.TokenProperties;
-import com.market.openmarket.dto.UserLogInRequestDto;
-import com.market.openmarket.dto.UserLogInResponseDto;
-import com.market.openmarket.dto.UserResponseDto;
-import com.market.openmarket.dto.UserSignUpRequestDto;
+import com.market.openmarket.dto.request.UserLogInRequestDto;
+import com.market.openmarket.dto.request.UserSignUpRequestDto;
+import com.market.openmarket.dto.response.UserLogInResponseDto;
+import com.market.openmarket.dto.response.UserResponseDto;
 import com.market.openmarket.entity.User;
 import com.market.openmarket.entity.UserType;
 import com.market.openmarket.exception.DuplicateUserException;
-import com.market.openmarket.repository.RefreshTokenRepository;
-import com.market.openmarket.repository.UserRepository;
-import com.market.openmarket.util.JwtToken;
-import com.market.openmarket.util.JwtUtil;
-import com.market.openmarket.util.PasswordEncoder;
+import com.market.openmarket.user.UserRepository;
 import com.market.openmarket.util.UserValidator;
+import com.market.openmarket.util.bcrypt.PasswordEncoder;
+import com.market.openmarket.util.jwt.JwtProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -44,13 +42,13 @@ class AuthServiceTest {
     private UserValidator userValidator;
 
     @Mock
-    private JwtUtil jwtUtil;
+    private JwtProvider jwtUtil;
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
     @InjectMocks
-    private AuthService authService;
+    private AuthServiceImpl authService;
 
     private UserSignUpRequestDto signUpRequestDto;
     private User fakeUser;

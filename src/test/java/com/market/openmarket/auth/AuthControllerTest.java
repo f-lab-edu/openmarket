@@ -1,6 +1,5 @@
-package com.market.openmarket.controller;
+package com.market.openmarket.auth;
 
-import com.market.openmarket.service.AuthService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

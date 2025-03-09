@@ -1,4 +1,4 @@
-package com.market.openmarket.repository;
+package com.market.openmarket.user;
 
 import com.market.openmarket.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

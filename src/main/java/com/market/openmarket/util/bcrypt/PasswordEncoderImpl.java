@@ -1,10 +1,10 @@
-package com.market.openmarket.util;
+package com.market.openmarket.util.bcrypt;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordEncoder {
+public class PasswordEncoderImpl implements PasswordEncoder {
 
     public String hash(String rawPassword) {
         return BCrypt.hashpw(rawPassword, BCrypt.gensalt());

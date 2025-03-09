@@ -1,4 +1,4 @@
-package com.market.openmarket.dto;
+package com.market.openmarket.dto.response;
 
 import com.market.openmarket.entity.User;
 import com.market.openmarket.entity.UserType;

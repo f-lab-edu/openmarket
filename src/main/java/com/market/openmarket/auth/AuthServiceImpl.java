@@ -1,17 +1,15 @@
-package com.market.openmarket.service;
+package com.market.openmarket.auth;
 
-import com.market.openmarket.dto.UserLogInRequestDto;
-import com.market.openmarket.dto.UserLogInResponseDto;
-import com.market.openmarket.dto.UserResponseDto;
-import com.market.openmarket.dto.UserSignUpRequestDto;
+import com.market.openmarket.dto.request.UserLogInRequestDto;
+import com.market.openmarket.dto.request.UserSignUpRequestDto;
+import com.market.openmarket.dto.response.UserLogInResponseDto;
+import com.market.openmarket.dto.response.UserResponseDto;
 import com.market.openmarket.entity.RefreshToken;
 import com.market.openmarket.entity.User;
-import com.market.openmarket.repository.RefreshTokenRepository;
-import com.market.openmarket.repository.UserRepository;
-import com.market.openmarket.util.JwtToken;
-import com.market.openmarket.util.JwtUtil;
-import com.market.openmarket.util.PasswordEncoder;
+import com.market.openmarket.user.UserRepository;
 import com.market.openmarket.util.UserValidator;
+import com.market.openmarket.util.bcrypt.PasswordEncoder;
+import com.market.openmarket.util.jwt.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +19,12 @@ import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserValidator userValidator;
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional

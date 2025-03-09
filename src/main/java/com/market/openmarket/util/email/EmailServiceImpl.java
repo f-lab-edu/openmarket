@@ -1,4 +1,4 @@
-package com.market.openmarket.service;
+package com.market.openmarket.util.email;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class EmailService {
+public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
 

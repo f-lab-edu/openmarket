@@ -1,11 +1,10 @@
-package com.market.openmarket.controller;
+package com.market.openmarket.auth;
 
 import com.market.openmarket.config.TokenProperties;
-import com.market.openmarket.dto.UserLogInRequestDto;
-import com.market.openmarket.dto.UserLogInResponseDto;
-import com.market.openmarket.dto.UserResponseDto;
-import com.market.openmarket.dto.UserSignUpRequestDto;
-import com.market.openmarket.service.AuthService;
+import com.market.openmarket.dto.request.UserLogInRequestDto;
+import com.market.openmarket.dto.request.UserSignUpRequestDto;
+import com.market.openmarket.dto.response.UserLogInResponseDto;
+import com.market.openmarket.dto.response.UserResponseDto;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

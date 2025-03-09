@@ -1,5 +1,6 @@
-package com.market.openmarket.util;
+package com.market.openmarket.util.jwt;
 
+import com.market.openmarket.auth.JwtToken;
 import com.market.openmarket.config.TokenProperties;
 import com.market.openmarket.entity.User;
 import io.jsonwebtoken.Jwts;
@@ -12,7 +13,7 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-public class JwtUtil {
+public class JwtProviderImpl implements JwtProvider {
 
     @Value("${jwt.secret}")
     private String rawKey;

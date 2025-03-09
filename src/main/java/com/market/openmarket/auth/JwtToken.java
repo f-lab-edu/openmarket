@@ -1,4 +1,4 @@
-package com.market.openmarket.util;
+package com.market.openmarket.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

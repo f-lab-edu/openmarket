@@ -1,11 +1,10 @@
-package com.market.openmarket.service;
+package com.market.openmarket.user;
 
-import com.market.openmarket.dto.UserResponseDto;
-import com.market.openmarket.dto.UserUpdateRequestDto;
+import com.market.openmarket.dto.request.UserUpdateRequestDto;
+import com.market.openmarket.dto.response.UserResponseDto;
 import com.market.openmarket.entity.User;
 import com.market.openmarket.entity.UserType;
 import com.market.openmarket.exception.DuplicateUserException;
-import com.market.openmarket.repository.UserRepository;
 import com.market.openmarket.util.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,7 +29,7 @@ class UserServiceTest {
     private UserValidator userValidator;
 
     @InjectMocks
-    private UserService userService;
+    private UserServiceImpl userService;
 
     private User fakeUser;
 

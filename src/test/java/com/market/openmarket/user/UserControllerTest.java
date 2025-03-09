@@ -1,4 +1,4 @@
-package com.market.openmarket.controller;
+package com.market.openmarket.user;
 
 class UserControllerTest {
 

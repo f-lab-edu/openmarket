@@ -1,9 +1,8 @@
-package com.market.openmarket.controller;
+package com.market.openmarket.user;
 
-import com.market.openmarket.dto.PasswordFindRequestDto;
-import com.market.openmarket.dto.UserResponseDto;
-import com.market.openmarket.dto.UserUpdateRequestDto;
-import com.market.openmarket.service.UserService;
+import com.market.openmarket.dto.request.PasswordFindRequestDto;
+import com.market.openmarket.dto.request.UserUpdateRequestDto;
+import com.market.openmarket.dto.response.UserResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

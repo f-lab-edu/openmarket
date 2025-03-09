@@ -1,24 +1,21 @@
-package com.market.openmarket.service;
+package com.market.openmarket.user;
 
-import com.market.openmarket.dto.UserResponseDto;
-import com.market.openmarket.dto.UserUpdateRequestDto;
+import com.market.openmarket.dto.request.UserUpdateRequestDto;
+import com.market.openmarket.dto.response.UserResponseDto;
 import com.market.openmarket.entity.User;
-import com.market.openmarket.repository.UserRepository;
-import com.market.openmarket.util.JwtUtil;
 import com.market.openmarket.util.UserValidator;
+import com.market.openmarket.util.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     private final UserValidator userValidator;
-
-    private final JwtUtil jwtUtil;
 
     private final EmailService emailService;
 

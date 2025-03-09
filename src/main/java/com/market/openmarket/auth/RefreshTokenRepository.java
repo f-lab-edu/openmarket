@@ -1,4 +1,4 @@
-package com.market.openmarket.repository;
+package com.market.openmarket.auth;
 
 import com.market.openmarket.entity.RefreshToken;
 import org.springframework.data.jpa.repository.JpaRepository;

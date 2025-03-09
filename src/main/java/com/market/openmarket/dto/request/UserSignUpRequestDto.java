@@ -1,4 +1,4 @@
-package com.market.openmarket.dto;
+package com.market.openmarket.dto.request;
 
 import com.market.openmarket.entity.UserType;
 import jakarta.validation.constraints.Email;

@@ -1,4 +1,4 @@
-package com.market.openmarket.dto;
+package com.market.openmarket.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;

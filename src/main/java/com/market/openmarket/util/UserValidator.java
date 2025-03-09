@@ -1,9 +1,9 @@
 package com.market.openmarket.util;
 
-import com.market.openmarket.dto.UserSignUpRequestDto;
-import com.market.openmarket.dto.UserUpdateRequestDto;
+import com.market.openmarket.dto.request.UserSignUpRequestDto;
+import com.market.openmarket.dto.request.UserUpdateRequestDto;
 import com.market.openmarket.exception.DuplicateUserException;
-import com.market.openmarket.repository.UserRepository;
+import com.market.openmarket.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
