@@ -1,9 +1,10 @@
 package com.market.openmarket.domain.user;
 
-import com.market.openmarket.domain.user.entity.User;
-import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
 import com.market.openmarket.common.dto.UserResponseDto;
 import com.market.openmarket.common.util.UserValidator;
+import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
+import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
+import com.market.openmarket.domain.user.entity.User;
 import com.market.openmarket.domain.user.util.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,12 +20,36 @@ public class UserServiceImpl implements UserService {
 
     private final EmailService emailService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User findByIdOrFail(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 
     @Transactional
+    public User createUser(UserSignUpRequestDto requestDto) {
+        userValidator.validateDuplicate(requestDto);
+
+        User user = User.builder()
+                .email(requestDto.getEmail())
+                .pwd(requestDto.getPwd())
+                .name(requestDto.getName())
+                .phone(requestDto.getPhone())
+                .nickname(requestDto.getNickname())
+                .address(requestDto.getAddress())
+                .isDeleted(false)
+                .type(requestDto.getType())
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+
+    @Transactional(readOnly = true)
     public UserResponseDto getUser(Long id) {
         User user = findByIdOrFail(id);
 
