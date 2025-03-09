@@ -1,11 +1,13 @@
 package com.market.openmarket.user;
 
-import com.market.openmarket.dto.request.UserUpdateRequestDto;
-import com.market.openmarket.dto.response.UserResponseDto;
-import com.market.openmarket.entity.User;
-import com.market.openmarket.entity.UserType;
-import com.market.openmarket.exception.DuplicateUserException;
-import com.market.openmarket.util.UserValidator;
+import com.market.openmarket.domain.user.UserRepository;
+import com.market.openmarket.domain.user.UserServiceImpl;
+import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
+import com.market.openmarket.common.dto.UserResponseDto;
+import com.market.openmarket.domain.user.entity.User;
+import com.market.openmarket.domain.user.entity.UserType;
+import com.market.openmarket.common.exception.DuplicateUserException;
+import com.market.openmarket.common.util.UserValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

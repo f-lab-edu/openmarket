@@ -1,5 +1,7 @@
 package com.market.openmarket.auth;
 
+import com.market.openmarket.domain.auth.AuthController;
+import com.market.openmarket.domain.auth.AuthService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
