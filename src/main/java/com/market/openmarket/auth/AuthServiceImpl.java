@@ -24,7 +24,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserValidator userValidator;
-    private final JwtProvider jwtUtil;
+    private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
@@ -58,8 +58,8 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
 
-        JwtToken accessToken = jwtUtil.generateAccessToken(user);
-        JwtToken refreshToken = jwtUtil.generateRefreshToken(user);
+        JwtToken accessToken = jwtProvider.generateAccessToken(user);
+        JwtToken refreshToken = jwtProvider.generateRefreshToken(user);
 
         // TODO: 리팩터링 시 JPA AttributeConverter 적용하기
         LocalDateTime issuedAt = LocalDateTime.ofInstant(refreshToken.getIssuedAt().toInstant(), ZoneId.of("UTC"));

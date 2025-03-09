@@ -42,7 +42,7 @@ class AuthServiceTest {
     private UserValidator userValidator;
 
     @Mock
-    private JwtProvider jwtUtil;
+    private JwtProvider jwtProvider;
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
@@ -138,8 +138,8 @@ class AuthServiceTest {
         JwtToken dummyAccessToken = new JwtToken("access-token", now, accessExpiresAt);
         JwtToken dummyRefreshToken = new JwtToken("refresh-token", now, refreshExpiresAt);
 
-        when(jwtUtil.generateAccessToken(fakeUser)).thenReturn(dummyAccessToken);
-        when(jwtUtil.generateRefreshToken(fakeUser)).thenReturn(dummyRefreshToken);
+        when(jwtProvider.generateAccessToken(fakeUser)).thenReturn(dummyAccessToken);
+        when(jwtProvider.generateRefreshToken(fakeUser)).thenReturn(dummyRefreshToken);
         when(refreshTokenRepository.findByUserId(fakeUser.getId()))
                 .thenReturn(Optional.empty());
 
