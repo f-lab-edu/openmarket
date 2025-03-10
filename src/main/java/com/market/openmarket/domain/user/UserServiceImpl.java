@@ -3,12 +3,23 @@ package com.market.openmarket.domain.user;
 import com.market.openmarket.common.dto.UserResponseDto;
 import com.market.openmarket.common.util.UserValidator;
 import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
+import com.market.openmarket.domain.auth.util.bcrypt.PasswordEncoder;
+import com.market.openmarket.domain.user.dto.PasswordResetRequestDto;
 import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
 import com.market.openmarket.domain.user.entity.User;
 import com.market.openmarket.domain.user.util.email.EmailService;
+import com.market.openmarket.domain.user.util.token.PasswordResetTokenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +30,10 @@ public class UserServiceImpl implements UserService {
     private final UserValidator userValidator;
 
     private final EmailService emailService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    private final PasswordResetTokenService passwordResetTokenService;
 
     @Transactional(readOnly = true)
     public User findByIdOrFail(Long id) {
@@ -83,11 +98,30 @@ public class UserServiceImpl implements UserService {
         user.setEmail(null);
         user.setNickname(null);
         user.setPhone(null);
-        // TODO: Postgres 의 경우, partial unique index 를 사용하여 해결 가능함.
     }
 
     public void sendPasswordResetEmail(String email) {
         userValidator.checkEmailExists(email);
         emailService.sendPasswordResetEmail(email);
+    }
+
+    @Transactional
+    public void resetPassword(String email, String token, PasswordResetRequestDto requestDto) {
+        String newPwd = requestDto.getNewPwd();
+        String confirmPwd = requestDto.getConfirmPwd();
+        if (!newPwd.equals(confirmPwd)) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        boolean isValid = passwordResetTokenService.validateToken(email, token);
+        if (!isValid) {
+            throw new IllegalArgumentException("유효하지 않은 비밀번호 재설정 요청입니다.");
+        }
+
+        String hashedPwd = passwordEncoder.hash(requestDto.getNewPwd());
+        User user = findByEmailOrFail(email);
+        user.setPwd(hashedPwd);
+
+        passwordResetTokenService.deleteToken(email);
     }
 }
