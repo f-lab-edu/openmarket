@@ -9,9 +9,9 @@ public interface JwtProvider {
 
     JwtToken generateRefreshToken(User user);
 
-    JwtToken generatePasswordResetToken(String email);
+    String generatePasswordResetToken(String email);
 
     boolean validateToken(String token);
 
-    String getEmailFromToken(String token);
+    String getSubjectFromToken(String token);
 }

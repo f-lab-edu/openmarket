@@ -2,7 +2,6 @@ package com.market.openmarket.domain.user;
 
 import com.market.openmarket.common.dto.UserResponseDto;
 import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
-import com.market.openmarket.domain.user.dto.PasswordResetRequestDto;
 import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
 import com.market.openmarket.domain.user.entity.User;
 
@@ -18,9 +17,7 @@ public interface UserService {
 
     UserResponseDto updateUser(Long id, UserUpdateRequestDto requestDto);
 
-    void sendPasswordResetEmail(String email);
-
-    void resetPassword(String email, String token, PasswordResetRequestDto requestDto);
+    void updatePassword(String email, String newPassword);
 
     void deleteUser(Long id);
 }

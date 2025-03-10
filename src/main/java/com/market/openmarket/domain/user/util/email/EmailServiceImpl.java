@@ -1,19 +1,12 @@
 package com.market.openmarket.domain.user.util.email;
 
-import com.market.openmarket.common.config.TokenProperties;
-import com.market.openmarket.domain.auth.JwtToken;
-import com.market.openmarket.domain.auth.util.jwt.JwtProvider;
-import com.market.openmarket.domain.user.util.token.PasswordResetTokenService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -21,15 +14,12 @@ import java.util.concurrent.TimeUnit;
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
-    private final PasswordResetTokenService passwordResetTokenService;
 
     @Value("${application.url}")
     private String baseUrl;
 
-    public void sendPasswordResetEmail(String email) {
+    public void sendPasswordResetEmail(String email, String token) {
         try {
-            String token = passwordResetTokenService.generatePasswordResetToken(email);
-
             String resetUrl = baseUrl + "/password-reset?token=" + token;
 
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();

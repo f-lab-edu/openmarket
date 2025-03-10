@@ -1,7 +1,7 @@
 package com.market.openmarket.domain.auth.util.jwt;
 
-import com.market.openmarket.domain.auth.JwtToken;
 import com.market.openmarket.common.config.TokenProperties;
+import com.market.openmarket.domain.auth.JwtToken;
 import com.market.openmarket.domain.user.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -59,20 +59,18 @@ public class JwtProviderImpl implements JwtProvider {
         return new JwtToken(token, now, expiresDate);
     }
 
-    public JwtToken generatePasswordResetToken(String email) {
+    public String generatePasswordResetToken(String email) {
         Date now = new Date();
         long passwordResetTokenExpiration = 1000L * 60 * TokenProperties.PASSWORD_RESET_EXPIRATION_MINUTES;
         Date expiresDate = new Date(now.getTime() + passwordResetTokenExpiration);
 
-        String token = Jwts.builder()
+        return Jwts.builder()
                 .subject(email)
                 .issuedAt(now)
                 .expiration(expiresDate)
                 .claim("purpose", "password-reset")
                 .signWith(generateKey())
                 .compact();
-
-        return new JwtToken(token, now, expiresDate);
     }
 
     public boolean validateToken(String token) {
@@ -88,7 +86,7 @@ public class JwtProviderImpl implements JwtProvider {
         }
     }
 
-    public String getEmailFromToken(String token) {
+    public String getSubjectFromToken(String token) {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(generateKey())
@@ -98,7 +96,7 @@ public class JwtProviderImpl implements JwtProvider {
 
             return claims.getSubject();
         } catch (Exception e) {
-            log.warn("토큰에서 이메일 추출 실패: {}", e.getMessage());
+            log.warn("토큰에서 subject 추출 실패: {}", e.getMessage());
             return null;
         }
     }

@@ -1,14 +1,18 @@
 package com.market.openmarket.domain.auth;
 
 import com.market.openmarket.common.dto.UserResponseDto;
+import com.market.openmarket.common.util.UserValidator;
 import com.market.openmarket.domain.auth.dto.UserLogInRequestDto;
 import com.market.openmarket.domain.auth.dto.UserLogInResponseDto;
 import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
 import com.market.openmarket.domain.auth.entity.RefreshToken;
 import com.market.openmarket.domain.auth.util.bcrypt.PasswordEncoder;
 import com.market.openmarket.domain.auth.util.jwt.JwtProvider;
+import com.market.openmarket.domain.auth.util.jwt.TokenService;
 import com.market.openmarket.domain.user.UserService;
+import com.market.openmarket.domain.user.dto.PasswordResetRequestDto;
 import com.market.openmarket.domain.user.entity.User;
+import com.market.openmarket.domain.user.util.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +28,9 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserValidator userValidator;
+    private final EmailService emailService;
+    private final TokenService tokenService;
 
     @Transactional
     public UserResponseDto signUp(UserSignUpRequestDto requestDto) {
@@ -64,5 +71,25 @@ public class AuthServiceImpl implements AuthService {
                 .accessToken(accessToken.getToken())
                 .refreshToken(refreshToken.getToken())
                 .build();
+    }
+
+    public void sendPasswordResetEmail(String email) {
+        userValidator.checkEmailExists(email);
+
+        String token = tokenService.savePasswordResetToken(email);
+        emailService.sendPasswordResetEmail(email, token);
+    }
+
+    public void resetPassword(String email, String token, PasswordResetRequestDto requestDto) {
+        userValidator.checkEmailExists(email);
+        if (!requestDto.getNewPwd().equals(requestDto.getConfirmPwd())) {
+            throw new IllegalArgumentException("비밀번호를 다시 입력해주세요.");
+        }
+
+        tokenService.validatePasswordResetToken(email, token);
+
+        String hashedPwd = passwordEncoder.hash(requestDto.getNewPwd());
+        userService.updatePassword(email, hashedPwd);
+        tokenService.deletePasswordResetToken(email);
     }
 }
