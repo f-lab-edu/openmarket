@@ -1,20 +1,19 @@
 package com.market.openmarket.auth;
 
 import com.market.openmarket.common.config.TokenProperties;
+import com.market.openmarket.common.dto.UserResponseDto;
+import com.market.openmarket.common.exception.DuplicateUserException;
 import com.market.openmarket.domain.auth.AuthServiceImpl;
 import com.market.openmarket.domain.auth.JwtToken;
 import com.market.openmarket.domain.auth.RefreshTokenRepository;
 import com.market.openmarket.domain.auth.dto.UserLogInRequestDto;
-import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
 import com.market.openmarket.domain.auth.dto.UserLogInResponseDto;
-import com.market.openmarket.common.dto.UserResponseDto;
-import com.market.openmarket.domain.user.entity.User;
-import com.market.openmarket.domain.user.entity.UserType;
-import com.market.openmarket.common.exception.DuplicateUserException;
-import com.market.openmarket.domain.user.UserRepository;
-import com.market.openmarket.common.util.UserValidator;
+import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
 import com.market.openmarket.domain.auth.util.bcrypt.PasswordEncoder;
 import com.market.openmarket.domain.auth.util.jwt.JwtProvider;
+import com.market.openmarket.domain.user.UserService;
+import com.market.openmarket.domain.user.entity.User;
+import com.market.openmarket.domain.user.entity.UserType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,29 +25,25 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Date;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
     @Mock
-    private UserRepository userRepository;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
-
-    @Mock
-    private UserValidator userValidator;
 
     @Mock
     private JwtProvider jwtProvider;
 
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -92,46 +87,34 @@ class AuthServiceTest {
     void signUp() {
         String hashedPwd = "hashedPassword123";
         when(passwordEncoder.hash(signUpRequestDto.getPwd())).thenReturn(hashedPwd);
-        User savedUser = User.builder()
-                .id(1L)
-                .email(signUpRequestDto.getEmail())
-                .pwd(hashedPwd)
-                .name(signUpRequestDto.getName())
-                .phone(signUpRequestDto.getPhone())
-                .nickname(signUpRequestDto.getNickname())
-                .address(signUpRequestDto.getAddress())
-                .isDeleted(false)
-                .type(signUpRequestDto.getType())
-                .build();
-        when(userRepository.save(any(User.class))).thenReturn(savedUser);
+        when(userService.createUser(any(UserSignUpRequestDto.class))).thenReturn(fakeUser);
 
         UserResponseDto responseDto = authService.signUp(signUpRequestDto);
 
-        assertEquals(1L, responseDto.getId());
-        assertEquals(signUpRequestDto.getEmail(), responseDto.getEmail());
-        assertEquals(signUpRequestDto.getName(), responseDto.getName());
-        assertEquals(signUpRequestDto.getPhone(), responseDto.getPhone());
-        assertEquals(signUpRequestDto.getNickname(), responseDto.getNickname());
-        assertEquals(signUpRequestDto.getAddress(), responseDto.getAddress());
-        assertEquals(signUpRequestDto.getType(), responseDto.getType());
+        assertThat(responseDto.getId()).isEqualTo(fakeUser.getId());
+        assertThat(responseDto.getEmail()).isEqualTo(fakeUser.getEmail());
+        assertThat(responseDto.getName()).isEqualTo(fakeUser.getName());
+        assertThat(responseDto.getPhone()).isEqualTo(fakeUser.getPhone());
+        assertThat(responseDto.getNickname()).isEqualTo(fakeUser.getNickname());
+        assertThat(responseDto.getAddress()).isEqualTo(fakeUser.getAddress());
+        assertThat(responseDto.getType()).isEqualTo(fakeUser.getType());
     }
 
     @Test
     @DisplayName("회원가입 실패 - 이메일 중복")
     void signUpFailed() {
-        doThrow(new DuplicateUserException("Duplicate email")).when(userValidator).validateDuplicate(signUpRequestDto);
+        when(userService.createUser(any(UserSignUpRequestDto.class)))
+                .thenThrow(new DuplicateUserException("이미 사용 중인 이메일입니다."));
 
-        assertThrows(DuplicateUserException.class, () -> {
-            authService.signUp(signUpRequestDto);
-        });
+        assertThatThrownBy(() -> authService.signUp(signUpRequestDto))
+                .isInstanceOf(DuplicateUserException.class);
     }
 
     @Test
     @DisplayName("로그인 성공")
     void logIn() {
-        when(userRepository.findByEmail(logInRequestDto.getEmail()))
-                .thenReturn(Optional.of(fakeUser));
-
+        when(userService.findByEmailOrFail(logInRequestDto.getEmail()))
+                .thenReturn(fakeUser);
         when(passwordEncoder.checkPwd(logInRequestDto.getPwd(), fakeUser.getPwd()))
                 .thenReturn(true);
 
@@ -148,8 +131,8 @@ class AuthServiceTest {
 
         UserLogInResponseDto responseDto = authService.logIn(logInRequestDto);
 
-        assertEquals("access-token", responseDto.getAccessToken());
-        assertEquals("refresh-token", responseDto.getRefreshToken());
+        assertThat("access-token").isEqualTo(responseDto.getAccessToken());
+        assertThat("refresh-token").isEqualTo(responseDto.getRefreshToken());
     }
 
     @Test
@@ -157,11 +140,10 @@ class AuthServiceTest {
     void LogInFailedByNoUser() {
         logInRequestDto.setEmail("wrong@wrong.com");
 
-        when(userRepository.findByEmail(logInRequestDto.getEmail())).thenReturn(Optional.empty());
+        when(userService.findByEmailOrFail(logInRequestDto.getEmail())).thenThrow(new IllegalArgumentException("존재하지 않는 사용자입니다."));
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            authService.logIn(logInRequestDto);
-        });
+        assertThatThrownBy(() -> authService.logIn(logInRequestDto))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
@@ -169,11 +151,10 @@ class AuthServiceTest {
     void logInFailedByPwd() {
         logInRequestDto.setPwd("wrong");
 
-        when(userRepository.findByEmail(logInRequestDto.getEmail())).thenReturn(Optional.of(fakeUser));
+        when(userService.findByEmailOrFail(logInRequestDto.getEmail())).thenReturn(fakeUser);
         when(passwordEncoder.checkPwd(logInRequestDto.getPwd(), fakeUser.getPwd())).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            authService.logIn(logInRequestDto);
-        });
+        assertThatThrownBy(() -> authService.logIn(logInRequestDto))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }

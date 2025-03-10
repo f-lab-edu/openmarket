@@ -1,15 +1,14 @@
 package com.market.openmarket.domain.auth;
 
-import com.market.openmarket.domain.auth.entity.RefreshToken;
-import com.market.openmarket.domain.auth.dto.UserLogInRequestDto;
-import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
-import com.market.openmarket.domain.auth.dto.UserLogInResponseDto;
 import com.market.openmarket.common.dto.UserResponseDto;
-import com.market.openmarket.domain.user.entity.User;
-import com.market.openmarket.domain.user.UserRepository;
-import com.market.openmarket.common.util.UserValidator;
+import com.market.openmarket.domain.auth.dto.UserLogInRequestDto;
+import com.market.openmarket.domain.auth.dto.UserLogInResponseDto;
+import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
+import com.market.openmarket.domain.auth.entity.RefreshToken;
 import com.market.openmarket.domain.auth.util.bcrypt.PasswordEncoder;
 import com.market.openmarket.domain.auth.util.jwt.JwtProvider;
+import com.market.openmarket.domain.user.UserService;
+import com.market.openmarket.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,37 +20,23 @@ import java.time.ZoneId;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final PasswordEncoder passwordEncoder;
-    private final UserValidator userValidator;
     private final JwtProvider jwtProvider;
     private final RefreshTokenRepository refreshTokenRepository;
 
     @Transactional
     public UserResponseDto signUp(UserSignUpRequestDto requestDto) {
-        userValidator.validateDuplicate(requestDto);
         String hashedPwd = passwordEncoder.hash(requestDto.getPwd());
+        requestDto.setPwd(hashedPwd);
 
-        User user = User.builder()
-                .email(requestDto.getEmail())
-                .pwd(hashedPwd)
-                .name(requestDto.getName())
-                .phone(requestDto.getPhone())
-                .nickname(requestDto.getNickname())
-                .address(requestDto.getAddress())
-                .isDeleted(false)
-                .type(requestDto.getType())
-                .build();
-
-        User savedUser = userRepository.save(user);
-
+        User savedUser = userService.createUser(requestDto);
         return UserResponseDto.fromEntity(savedUser);
     }
 
     @Transactional
     public UserLogInResponseDto logIn(UserLogInRequestDto requestDto) {
-        User user = userRepository.findByEmail(requestDto.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+        User user = userService.findByEmailOrFail(requestDto.getEmail());
 
         boolean isValid = passwordEncoder.checkPwd(requestDto.getPwd(), user.getPwd());
         if (!isValid) {
@@ -61,7 +46,6 @@ public class AuthServiceImpl implements AuthService {
         JwtToken accessToken = jwtProvider.generateAccessToken(user);
         JwtToken refreshToken = jwtProvider.generateRefreshToken(user);
 
-        // TODO: 리팩터링 시 JPA AttributeConverter 적용하기
         LocalDateTime issuedAt = LocalDateTime.ofInstant(refreshToken.getIssuedAt().toInstant(), ZoneId.of("UTC"));
         LocalDateTime expiresAt = LocalDateTime.ofInstant(refreshToken.getExpiration().toInstant(), ZoneId.of("UTC"));
 
@@ -70,12 +54,10 @@ public class AuthServiceImpl implements AuthService {
                         .userId(user.getId()).build()
                 );
 
-        // 토큰을 가진 유저가 새로 로그인한다면 토큰 값과 발행일자, 만료일자 새로 세팅
         refreshTokenEntity.setToken(refreshToken.getToken());
         refreshTokenEntity.setIssuedAt(issuedAt);
         refreshTokenEntity.setExpiresAt(expiresAt);
 
-        // 신규 엔티티의 경우 JPA DirtyChecking 적용 안됨. 명시적 save() 호출
         refreshTokenRepository.save(refreshTokenEntity);
 
         return UserLogInResponseDto.builder()

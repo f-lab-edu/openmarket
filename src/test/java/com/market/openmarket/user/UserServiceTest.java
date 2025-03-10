@@ -1,5 +1,6 @@
 package com.market.openmarket.user;
 
+import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
 import com.market.openmarket.domain.user.UserRepository;
 import com.market.openmarket.domain.user.UserServiceImpl;
 import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
@@ -18,6 +19,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -34,6 +37,7 @@ class UserServiceTest {
     private UserServiceImpl userService;
 
     private User fakeUser;
+    private UserSignUpRequestDto signUpRequestDto;
 
     @BeforeEach
     void setUp() {
@@ -48,30 +52,102 @@ class UserServiceTest {
                 .isDeleted(false)
                 .type(UserType.CUSTOMER)
                 .build();
+
+        signUpRequestDto = UserSignUpRequestDto.builder()
+                .email("test@test.com")
+                .pwd("1234")
+                .build();
     }
 
     @Test
-    @DisplayName("유저를 id로 찾는다.")
+    @DisplayName("유저를 id 로 조회한다.")
+    void findByIdOrFail() {
+        when(userRepository.findById(1L)).thenReturn(Optional.of(fakeUser));
+
+        User user = userService.findByIdOrFail(1L);
+
+        assertThat(user.getId()).isEqualTo(fakeUser.getId());
+        assertThat(user.getEmail()).isEqualTo(fakeUser.getEmail());
+        assertThat(user.getName()).isEqualTo(fakeUser.getName());
+        assertThat(user.getPhone()).isEqualTo(fakeUser.getPhone());
+        assertThat(user.getNickname()).isEqualTo(fakeUser.getNickname());
+        assertThat(user.getAddress()).isEqualTo(fakeUser.getAddress());
+    }
+
+    @Test
+    @DisplayName("유저를 id 로 조회하기에 실패한다.")
+    void findByIdOrFailFailed() {
+        when(userRepository.findById(1L)).thenThrow(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> userService.findByIdOrFail(1L))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("유저를 이메일로 조회한다.")
+    void findByEmailOrFail() {
+        when(userRepository.findByEmail("test@test.com")).thenReturn(Optional.of(fakeUser));
+        User user = userService.findByEmailOrFail("test@test.com");
+
+        assertThat(user.getId()).isEqualTo(fakeUser.getId());
+    }
+
+    @Test
+    @DisplayName("유저를 이메일로 조회하기에 실패한다.")
+    void findByEmailOrFailFailed() {
+        when(userRepository.findByEmail("wrong@test.com")).thenThrow(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> userService.findByEmailOrFail("wrong@test.com"))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("유저 정보를 가져온다.")
     void getUser() {
         when(userRepository.findById(1L)).thenReturn(Optional.of(fakeUser));
         UserResponseDto responseDto = userService.getUser(1L);
 
-        assertEquals(fakeUser.getId(), responseDto.getId());
-        assertEquals(fakeUser.getEmail(), responseDto.getEmail());
-        assertEquals(fakeUser.getName(), responseDto.getName());
-        assertEquals(fakeUser.getPhone(), responseDto.getPhone());
-        assertEquals(fakeUser.getNickname(), responseDto.getNickname());
-        assertEquals(fakeUser.getAddress(), responseDto.getAddress());
+        assertThat(fakeUser.getId()).isEqualTo(responseDto.getId());
+        assertThat(fakeUser.getEmail()).isEqualTo(responseDto.getEmail());
+        assertThat(fakeUser.getName()).isEqualTo(responseDto.getName());
+        assertThat(fakeUser.getPhone()).isEqualTo(responseDto.getPhone());
+        assertThat(fakeUser.getNickname()).isEqualTo(responseDto.getNickname());
+        assertThat(fakeUser.getAddress()).isEqualTo(responseDto.getAddress());
     }
 
     @Test
-    @DisplayName("유저를 id로 찾는데 실패한다.")
+    @DisplayName("유저 정보를 가져오기에 실패한다.")
     void getUserFailed() {
         when(userRepository.findById(1L)).thenThrow(IllegalArgumentException.class);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.getUser(1L);
-        });
+        assertThatThrownBy(() -> userService.getUser(1L))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    @DisplayName("회원 생성에 성공한다.")
+    void createUser() {
+        doNothing().when(userValidator).validateDuplicate(signUpRequestDto);
+        when(userRepository.save(any(User.class))).thenReturn(fakeUser);
+
+        User user = userService.createUser(signUpRequestDto);
+
+        assertThat(user.getId()).isEqualTo(fakeUser.getId());
+        assertThat(user.getEmail()).isEqualTo(fakeUser.getEmail());
+        assertThat(user.getName()).isEqualTo(fakeUser.getName());
+        assertThat(user.getPhone()).isEqualTo(fakeUser.getPhone());
+        assertThat(user.getNickname()).isEqualTo(fakeUser.getNickname());
+        assertThat(user.getAddress()).isEqualTo(fakeUser.getAddress());
+        assertThat(user.getType()).isEqualTo(fakeUser.getType());
+    }
+
+    @Test
+    @DisplayName("회원 생성에 실패 - 중복된 정보")
+    void createUserFailedByDuplicatedEmail() {
+        doThrow(DuplicateUserException.class).when(userValidator).validateDuplicate(signUpRequestDto);
+
+        assertThatThrownBy(() -> userService.createUser(signUpRequestDto))
+                .isInstanceOf(DuplicateUserException.class);
     }
 
     @Test
@@ -87,9 +163,9 @@ class UserServiceTest {
 
         UserResponseDto responseDto = userService.updateUser(1L, requestDto);
 
-        assertEquals("koko", responseDto.getNickname());
-        assertEquals("010-2345-3456", responseDto.getPhone());
-        assertEquals("changed-address", responseDto.getAddress());
+        assertThat(responseDto.getNickname()).isEqualTo("koko");
+        assertThat(responseDto.getPhone()).isEqualTo("010-2345-3456");
+        assertThat(responseDto.getAddress()).isEqualTo("changed-address");
     }
 
     @Test
@@ -102,8 +178,8 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(fakeUser));
         doThrow(DuplicateUserException.class).when(userValidator).validateDuplicateForUpdate(1L, updateDto);
 
-        assertThrows(DuplicateUserException.class, () ->
-                userService.updateUser(1L, updateDto));
+        assertThatThrownBy(() -> userService.updateUser(1L, updateDto))
+                .isInstanceOf(DuplicateUserException.class);
     }
 
     @Test
@@ -116,8 +192,8 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(fakeUser));
         doThrow(DuplicateUserException.class).when(userValidator).validateDuplicateForUpdate(1L, updateDto);
 
-        assertThrows(DuplicateUserException.class, () ->
-                userService.updateUser(1L, updateDto));
+        assertThatThrownBy(() -> userService.updateUser(1L, updateDto))
+                .isInstanceOf(DuplicateUserException.class);
     }
 
     @Test
@@ -137,8 +213,7 @@ class UserServiceTest {
     void deleteUserFailed() {
         when(userRepository.findById(1L)).thenThrow(IllegalArgumentException.class);
 
-        assertThrows(IllegalArgumentException.class, () -> {
-            userService.deleteUser(1L);
-        });
+        assertThatThrownBy(() -> userService.deleteUser(1L))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
