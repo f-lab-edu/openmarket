@@ -1,8 +1,7 @@
 package com.market.openmarket.domain.user;
 
-import com.market.openmarket.domain.user.dto.PasswordFindRequestDto;
-import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
 import com.market.openmarket.common.dto.UserResponseDto;
+import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,11 +34,5 @@ public class UserController {
         userService.deleteUser(id);
 
         return ResponseEntity.ok("success");
-    }
-
-    @PostMapping("/find-password")
-    public ResponseEntity<String> findPassword(@RequestBody PasswordFindRequestDto requestDto) {
-        userService.sendPasswordResetEmail(requestDto.getEmail());
-        return ResponseEntity.ok("비밀번호 재설정 이메일을 발송했습니다.");
     }
 }

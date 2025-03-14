@@ -2,6 +2,7 @@ package com.market.openmarket.domain.user.util.email;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -14,17 +15,22 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender javaMailSender;
 
-    public void sendPasswordResetEmail(String email) {
+    @Value("${application.url}")
+    private String baseUrl;
+
+    public void sendPasswordResetEmail(String email, String token) {
         try {
+            String resetUrl = baseUrl + "/password-reset?token=" + token;
+
             SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
             simpleMailMessage.setTo(email);
             simpleMailMessage.setSubject("OOPEN MARKET - 비밀번호 찾기");
-            // TODO: setText 내용 수정(버튼으로 등)
-            simpleMailMessage.setText("아래 버튼을 누르면 비밀번호 재설정으로 이동합니다.");
+            simpleMailMessage.setText("아래 링크를 클릭하여 비밀번호를 재설정해주세요. \n" + resetUrl);
 
             javaMailSender.send(simpleMailMessage);
         } catch (MailException e) {
             log.warn(e.getMessage());
+            throw new RuntimeException("이메일 전송에 실패했습니다.");
         }
     }
 }

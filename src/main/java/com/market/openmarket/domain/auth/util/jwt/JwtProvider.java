@@ -8,4 +8,10 @@ public interface JwtProvider {
     JwtToken generateAccessToken(User user);
 
     JwtToken generateRefreshToken(User user);
+
+    String generatePasswordResetToken(String email);
+
+    boolean validateToken(String token);
+
+    String getSubjectFromToken(String token);
 }

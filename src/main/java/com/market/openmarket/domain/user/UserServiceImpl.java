@@ -1,10 +1,11 @@
 package com.market.openmarket.domain.user;
 
-import com.market.openmarket.domain.user.entity.User;
-import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
 import com.market.openmarket.common.dto.UserResponseDto;
 import com.market.openmarket.common.util.UserValidator;
-import com.market.openmarket.domain.user.util.email.EmailService;
+import com.market.openmarket.domain.auth.dto.UserSignUpRequestDto;
+import com.market.openmarket.domain.auth.util.bcrypt.PasswordEncoder;
+import com.market.openmarket.domain.user.dto.UserUpdateRequestDto;
+import com.market.openmarket.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +18,38 @@ public class UserServiceImpl implements UserService {
 
     private final UserValidator userValidator;
 
-    private final EmailService emailService;
+    private final PasswordEncoder passwordEncoder;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User findByIdOrFail(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
     }
 
     @Transactional
+    public User createUser(UserSignUpRequestDto requestDto) {
+        userValidator.validateDuplicate(requestDto);
+
+        User user = User.builder()
+                .email(requestDto.getEmail())
+                .pwd(requestDto.getPwd())
+                .name(requestDto.getName())
+                .phone(requestDto.getPhone())
+                .nickname(requestDto.getNickname())
+                .address(requestDto.getAddress())
+                .isDeleted(false)
+                .type(requestDto.getType())
+                .build();
+
+        return userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public User findByEmailOrFail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자입니다."));
+    }
+
+    @Transactional(readOnly = true)
     public UserResponseDto getUser(Long id) {
         User user = findByIdOrFail(id);
 
@@ -58,14 +83,11 @@ public class UserServiceImpl implements UserService {
         user.setEmail(null);
         user.setNickname(null);
         user.setPhone(null);
-        // TODO: Postgres 의 경우, partial unique index 를 사용하여 해결 가능함.
     }
 
     @Transactional
-    public void sendPasswordResetEmail(String email) {
-        userRepository.existsByEmail(email);
-
-        // TODO: 운영환경 주소 변경
-        emailService.sendPasswordResetEmail(email);
+    public void updatePassword(String email, String pwd) {
+        User user = findByEmailOrFail(email);
+        user.setPwd(pwd);
     }
 }
