@@ -34,6 +34,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Transactional
     public UserResponseDto signUp(UserSignUpRequestDto requestDto) {
+        if (!requestDto.getPwd().equals(requestDto.getConfirmPwd())) {
+            throw new IllegalArgumentException("비밀번호를 다시 입력해주세요.");
+        }
+
         String hashedPwd = passwordEncoder.hash(requestDto.getPwd());
         requestDto.setPwd(hashedPwd);
 

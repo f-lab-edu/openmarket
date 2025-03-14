@@ -20,6 +20,9 @@ public class UserSignUpRequestDto {
     @NotBlank(message = "Password is required.")
     private String pwd;
 
+    @NotBlank(message = "Password confirmation is required.")
+    private String confirmPwd;
+
     @NotBlank(message = "Name is required.")
     private String name;
 
